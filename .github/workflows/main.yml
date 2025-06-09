@@ -14,7 +14,7 @@ jobs:
           python-version: '3.10'
 
       - name: Build Docker image
-        run: docker build -t Netlify CMC:latest .
+        run: docker build -t decapmcmc:latest .
 
   deploy:
     needs: build
@@ -28,5 +28,5 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull netlify cmc:latest
+            docker pull decampcmc:latest
             docker-compose up 
