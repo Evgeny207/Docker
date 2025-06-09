@@ -18,8 +18,11 @@ jobs:
          username: ${{ secrets.DOCKER_USER }}
          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker image
+      - name: Build and tag Docker image
         run: |
-           docker tag netlify-cli:latest your-registry/netlify-cli:${{ github.sha }}
-           docker push your-registry/netlify-cli:${{ github.sha }}
+          docker build -t netlify-cli:latest .
+          docker tag netlify-cli:latest Docker/netlify-cli:${{ github.sha }}
+
+      - name: Push Docker image
+        run: docker push Docker/netlify-cli:${{ github.sha }}
 
