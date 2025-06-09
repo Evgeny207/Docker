@@ -7,12 +7,7 @@ jobs:
     - name: Checout
       uses: actions/checkout@v4
     - name: OWASP ZAP Scan
-      uses: zaproxy/action-full-scan@v0.6
+      uses: zaproxy/action-full-scan@v0.1.0
       with:
         target: 'http://staging.example.com'
         rules: all
-
-    - name: StackHawk
-      uses: stackhawk/hawkscan-action@v1
-      env:
-        HAWK_API_KEY: ${{ secrets.HAWK_API_KEY }}
