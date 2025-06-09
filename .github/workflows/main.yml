@@ -20,6 +20,6 @@ jobs:
 
       - name: Push Docker image
         run: |
-           docker tag decapmcmc:latest your-registry/decapmcmc:${{ github.sha }}
-           docker push your-registry/decapmcmc:${{ github.sha }}
+           docker tag netlify-cli:latest your-registry/netlify-cli:${{ github.sha }}
+           docker push your-registry/netlify-cli:${{ github.sha }}
 
