@@ -15,18 +15,14 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t decapmcmc:latest .
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
         with:
-          host: ${{ secrets.VPS_IP }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            docker pull decampcmc:latest
-            docker-compose up 
+         username: ${{ secrets.DOCKER_USER }}
+         password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker image
+        run: |
+           docker tag decapmcmc:latest your-registry/decapmcmc:${{ github.sha }}
+           docker push your-registry/decapmcmc:${{ github.sha }}
+
