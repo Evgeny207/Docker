@@ -4,6 +4,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    - name: Checout
+      uses: actions/checkout@v4
     - name: OWASP ZAP Scan
       uses: zaproxy/action-full-scan@v0.6
       with:
