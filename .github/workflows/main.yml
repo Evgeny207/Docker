@@ -17,7 +17,7 @@ jobs:
         with:
          username: ${{ secrets.DOCKER_USER }}
          password: ${{ secrets.DOCKER_PASSWORD }}
-
+         docker-name: ghcr.io/netlify-cli/netlify-cli:stable
       - name: Build and tag Docker image
         run: |
           docker build -t netlify-cli:latest .
