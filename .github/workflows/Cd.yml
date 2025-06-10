@@ -1,4 +1,4 @@
-name: Netlify CMC Pipelin
+name: Netlify CMC Pipeline
 
 on:
   push:
