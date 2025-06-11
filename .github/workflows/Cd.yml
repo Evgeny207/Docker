@@ -1,5 +1,4 @@
 name: Netlify CMC Pipeline
-
 on:
   push:
     branches: [main]
