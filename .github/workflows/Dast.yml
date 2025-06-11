@@ -1,15 +1,73 @@
-name: dast
-on: push
+name: Netlify CMC Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+   contents: write
+env:
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
 jobs:
-  zap_scan:
-    runs-on: ubuntu-latest
-    name: отчет о полном сканировании ZAP
-    steps:
-      - name: ZAP Scan
-        uses: zaproxy/action-full-scan@v0.1.0
+  build-and-deploy:
+   concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+   runs-on: ubuntu-latest
+     
+   steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          target: 'https://app.netlify.com'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          docker_name: ghcr.io/zaproxy/zaproxy:stable
-          rules_file_name: '.zap/rules.tsv'
+          folder: build # T
+  # Этап 2: SAST (статический анализ)
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  # Этап 3: DAST (динамический анализ)
+  dast:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: OWASP ZAP Scan
+        uses: zaproxy/action-full-scan@v0.10.0
+        with:
+          target: ${{ steps.deploy.outputs.deploy-url || 'https://tiny-nougat-be6b83.netlify.app' }}
+
+  # Этап 4: Security Checks (секреты и конфиги)
+  security-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Scan for secrets
+        uses: gitleaks/gitleaks-action@v2
+
+      - name: Check config with trivy
+        uses: aquasecurity/trivy-action@v0.17.0
+        with:
+          scan-type: config
+          scan-ref: .
